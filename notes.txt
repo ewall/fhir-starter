@@ -1,0 +1,54 @@
+mvn -B archetype:generate \
+  -DarchetypeGroupId=org.apache.maven.archetypes \
+  -DgroupId=org.ewall.app \
+  -DartifactId=fhir-starter
+
+cd fhir-starter
+
+STUFF THAT DOESN'T WORK:
+
+  subl pom.xml
+
+  <dependency>
+     <groupId>ca.uhn.hapi.fhir</groupId>
+     <artifactId>hapi-fhir-base</artifactId>
+     <version>0.8-SNAPSHOT</version>
+  </dependency>
+  <dependency>
+     <groupId>ca.uhn.hapi.fhir</groupId>
+     <artifactId>hapi-fhir-structures-dstu</artifactId>
+     <version>0.8-SNAPSHOT</version>
+  </dependency>
+
+  <repositories>
+    <repository>
+      <id>oss-snapshots</id>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
+
+  mvn install:install-file -DgroupId=ca.uhn.hapi.fhir -DartifactId=hapi-fhir-base -Dversion=0.8-SNAPSHOT -Dpackaging=jar -Dfile=downloads/api-fhir-base-0.8.jar
+
+  mvn install:install-file -DgroupId=ca.uhn.hapi.fhir -DartifactId=hapi-fhir-structures-dstu -Dversion=0.8-SNAPSHOT -Dpackaging=jar -Dfile=downloads/hapi-fhir-structures-dstu-0.8-SNAPSHOT.jar
+
+HOORAY!
+
+  mvn dependency:get -Dartifact=ca.uhn.hapi.fhir:hapi-fhir-base:0.8-SNAPSHOT:jar -DremoteRepositories=https://oss.sonatype.org/content/repositories/snapshots/
+
+  mvn dependency:get -Dartifact=ca.uhn.hapi.fhir:hapi-fhir-structures-dstu:0.8-SNAPSHOT:jar -DremoteRepositories=https://oss.sonatype.org/content/repositories/snapshots/
+
+mvn eclipse:eclipse
+
+mvn compile
+
+CERT:
+  /Library/Java/JavaVirtualMachines/jdk1.8.0_31.jdk/Contents/Home/bin/keytool -import -alias GoDaddySecureCertificationAuthority -file /Users/ewall/Dev/Java/fhir-starter/downloads/GoDaddySecureCertificationAuthority.pem -storepass changeit -trustcacerts -keystore /Library/Java/JavaVirtualMachines/jdk1.8.0_31.jdk/Contents/Home/jre/lib/security/cacerts
+
+SLF4J:
+
+mvn dependency:get -Dartifact=org.slf4j:slf4j-api:1.7.10:jar
+
+mvn install:install -Dartifact=org.slf4j:slf4j-api:1.7.10:jar
