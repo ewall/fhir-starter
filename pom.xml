@@ -7,7 +7,7 @@
   <version>1.0-SNAPSHOT</version>
   <name>fhir-starter</name>
   <url>http://maven.apache.org</url>
-  <repositories>
+  <!--repositories>
     <repository>
       <id>oss-snapshots</id>
       <snapshots>
@@ -15,7 +15,7 @@
       </snapshots>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
-  </repositories>
+  </repositories-->
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -26,20 +26,17 @@
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-base</artifactId>
-      <version>0.8-SNAPSHOT</version>
-      <scope>runtime</scope>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-dstu</artifactId>
-      <version>0.8-SNAPSHOT</version>
-      <scope>runtime</scope>
+      <version>0.8</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.7.10</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
     	<groupId>org.slf4j</groupId>
@@ -60,6 +57,11 @@
     	<groupId>org.codehaus.woodstox</groupId>
     	<artifactId>woodstox-core-asl</artifactId>
     	<version>4.4.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>commons-io</groupId>
+    	<artifactId>commons-io</artifactId>
+    	<version>2.4</version>
     </dependency>
   </dependencies>
 </project>
