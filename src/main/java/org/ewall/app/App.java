@@ -36,13 +36,21 @@ public class App
         String serverBase = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/";
         IGenericClient client = ctx.newRestfulGenericClient(serverBase);
          
-        // Perform a search
-        Bundle patients = client
+        // Get all Patients
+        Bundle response = client
               .search()
               .forResource(Patient.class)
+              .encodedJson()
               .execute();
-        System.out.println("Found " + patients.size() + " patients (page limit).\n");
-//        Patient patient = patients.getResources(Patient.class).get(0);
+        List<Patient> patients = response.getResources(Patient.class);
+        while (!response.getLinkNext().isEmpty()) {
+     	   // load next page
+     	   response = client.loadPage().next(response).execute();
+     	   patients.addAll(response.getResources(Patient.class));
+     	}
+        
+        System.out.println("Found " + patients.size() + " patients in total.\n");
+//        Patient patient = patients.get(0);
 //        IdDt id = patient.getId();
         
         // Get specific Patient ID
@@ -77,15 +85,23 @@ public class App
 		}
 	    
 	    // Get Observations
-	    Bundle observations = client
+	    response = client
 	    		.search()
 	    		.forResource(Observation.class)
 	    		.where(Observation.SUBJECT.hasId(id))
+	    		.encodedJson()
 	    		.execute();
+	    List<Observation> observations = response.getResources(Observation.class);
+    	while (!response.getLinkNext().isEmpty()) {
+    	   // load next page
+    	   response = client.loadPage().next(response).execute();
+    	   observations.addAll(response.getResources(Observation.class));
+    	}
+	    
 	    if (observations.size() > 0) {
 	    	System.out.println("\nFound " + observations.size() + " observations for this patient. Here's the first one:\n");
 	    	
-	    	Observation obs = observations.getResources(Observation.class).get(0);
+	    	Observation obs = observations.get(0);
 	    	
 	    	System.out.println("Name:        " + obs.getNameElement().getCodingFirstRep().getDisplayElement().getValue());
 	    	System.out.println(" - System:   " + obs.getNameElement().getCodingFirstRep().getSystemElement().getValue());
@@ -104,15 +120,23 @@ public class App
 	    }
 	    
 	    // Get Conditions
-	    Bundle conditions = client
+	    response = client
 	    		.search()
 	    		.forResource(Condition.class)
 	    		.where(Condition.SUBJECT.hasId(id))
+	    		.encodedJson()
 	    		.execute();
+	    List<Condition> conditions = response.getResources(Condition.class);
+	    while (!response.getLinkNext().isEmpty()) {
+    	   // load next page
+    	   response = client.loadPage().next(response).execute();
+    	   conditions.addAll(response.getResources(Condition.class));
+    	}
+	    
 	    if (conditions.size() > 0) {
 	    	System.out.println("\nFound " + conditions.size() + " conditions for this patient. Here's the first one:\n");
 	    	
-	    	Condition cond = conditions.getResources(Condition.class).get(0);
+	    	Condition cond = conditions.get(0);
 	    	
 	    	System.out.println("Name:        " + cond.getCode().getCodingFirstRep().getDisplayElement().getValue());
 	    	System.out.println(" - System:   " + cond.getCode().getCodingFirstRep().getSystemElement().getValue());
@@ -128,16 +152,22 @@ public class App
 	    }
 	    
 	    // Get MedicationPrescription
-	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead
-	    //   ...so we'll do the search by URL for now
+	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead... so we'll do the search by URL for now
 	    String searchstr = serverBase + "MedicationPrescription?subject:Patient=" + id.getIdPart();
 	    UriDt searchurl = new UriDt(searchstr);
-	    Bundle prescriptions = client.search(searchurl);
+	    response = client.search(searchurl);
+
+	    List<MedicationPrescription> prescriptions = response.getResources(MedicationPrescription.class);
+	    while (!response.getLinkNext().isEmpty()) {
+    	   // load next page
+    	   response = client.loadPage().next(response).execute();
+    	   prescriptions.addAll(response.getResources(MedicationPrescription.class));
+    	}
 	    
 	    if (prescriptions.size() > 0) {
 	    	System.out.println("\nFound " + prescriptions.size() + " prescriptions for this patient. Here's the first one:\n");
 	    	
-	    	MedicationPrescription rx = prescriptions.getResources(MedicationPrescription.class).get(0);
+	    	MedicationPrescription rx = prescriptions.get(0);
 	    	
 	    	System.out.println("Display:     " + rx.getMedicationElement().getDisplay().getValue());
 	    	
