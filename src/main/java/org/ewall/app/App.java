@@ -13,6 +13,7 @@ import ca.uhn.fhir.model.primitive.CodeDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.primitive.StringDt;
+import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.model.dstu.composite.AddressDt;
 import ca.uhn.fhir.model.dstu.composite.HumanNameDt;
 import ca.uhn.fhir.model.dstu.composite.QuantityDt;
@@ -30,21 +31,20 @@ public class App
         
         FhirContext ctx = new FhirContext();
 
-        String serverBase = "http://fhirtest.uhn.ca/baseDstu1";
+        String serverBase = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/";
         IGenericClient client = ctx.newRestfulGenericClient(serverBase);
          
         // Perform a search
-        String query="duck";
         Bundle patients = client
               .search()
               .forResource(Patient.class)
-              .where(Patient.FAMILY.matches().value(query))
               .execute();
-        System.out.println("Found " + patients.size() + " patients named '" + query + "'.\n");
-        //Patient patient = results.getResources(Patient.class).get(0);
+        System.out.println("Found " + patients.size() + " patients (page limit).\n");
+//        Patient patient = patients.getResources(Patient.class).get(0);
+//        IdDt id = patient.getId();
         
         // Get specific Patient ID
-        String resid = "d1132446701";
+        String resid = "Patient/3.568001602-01";
         System.out.println("Fetching Patient with RES_ID '" + resid + "'.");
         IdDt id = new IdDt(resid);
         Patient patient = client.read(Patient.class, id);
@@ -58,8 +58,10 @@ public class App
 
 	    System.out.println("Birth Date:  " + patient.getBirthDate().getValueAsString());
 	    
-	    CodeDt gender = patient.getGender().getCoding().get(0).getCode();
-	    System.out.println("Gender:      " + gender.getValue());
+	    if (!patient.getGender().getCoding().isEmpty()) {
+	    	CodeDt gender = patient.getGender().getCoding().get(0).getCode();
+	    	System.out.println("Gender:      " + gender.getValue());
+	    }
 		
 	    System.out.println("Married?:    " + patient.getMaritalStatus().getCodingFirstRep().getCode().getValue());
 	    
@@ -92,9 +94,9 @@ public class App
 	    	System.out.println("Units:       " + quan.getUnitsElement().getValueAsString());
 	    	
 	    	DateTimeDt applies = (DateTimeDt) obs.getAppliesElement();
-	    	System.out.println("Applies:     " + applies.getValueAsString());
+	    	if (applies!=null) System.out.println("Applies:     " + applies.getValueAsString());
 	    	
-	    	System.out.println("Performer:   " + obs.getPerformerElement().get(0).getDisplay().getValue());
+	    	if (!obs.getPerformerElement().isEmpty()) System.out.println("Performer:   " + obs.getPerformerElement().get(0).getDisplay().getValue());
 	    } else {
 	    	System.out.println("\nSorry, no observations found for this patient.");
 	    }
@@ -119,11 +121,12 @@ public class App
 	    }
 	    
 	    // Get MedicationPrescription
-	    Bundle prescriptions = client
-	    		.search()
-	    		.forResource(MedicationPrescription.class)
-	    		.where(MedicationPrescription.PATIENT.hasId(id))
-	    		.execute();
+	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead
+	    //   ...so we'll do the search by URL for now
+	    String searchstr = serverBase + "MedicationPrescription?subject:Patient=" + id.getIdPart();
+	    UriDt searchurl = new UriDt(searchstr);
+	    Bundle prescriptions = client.search(searchurl);
+	    
 	    if (prescriptions.size() > 0) {
 	    	System.out.println("\nFound " + prescriptions.size() + " prescriptions for this patient. Here's the first one:\n");
 	    	
