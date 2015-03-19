@@ -5,11 +5,13 @@ import java.util.List;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.IGenericClient;
 import ca.uhn.fhir.model.api.Bundle;
+import ca.uhn.fhir.model.dstu.resource.Medication;
 import ca.uhn.fhir.model.dstu.resource.Patient;
 import ca.uhn.fhir.model.dstu.resource.Observation;
 import ca.uhn.fhir.model.dstu.resource.Condition;
 import ca.uhn.fhir.model.dstu.resource.MedicationPrescription;
 import ca.uhn.fhir.model.primitive.CodeDt;
+import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.primitive.StringDt;
@@ -112,9 +114,14 @@ public class App
 	    	
 	    	Condition cond = conditions.getResources(Condition.class).get(0);
 	    	
-	    	System.out.println("Subject:     " + cond.getSubject().getDisplay().getValue());
+	    	System.out.println("Name:        " + cond.getCode().getCodingFirstRep().getDisplayElement().getValue());
+	    	System.out.println(" - System:   " + cond.getCode().getCodingFirstRep().getSystemElement().getValue());
+	    	System.out.println(" - Code:     " + cond.getCode().getCodingFirstRep().getCodeElement().getValue());
 	    	
-	    	// TODO: explore conditions data
+	    	DateDt onset = (DateDt) cond.getOnsetElement();
+	    	if (onset!=null) System.out.println("Onset:       " + onset.getValueAsString());
+	    	
+	    	System.out.println("Status:      " + cond.getStatusElement().getValue());
 	    	
 	    } else {
 	    	System.out.println("\nSorry, no conditions found for this patient.");
@@ -134,8 +141,27 @@ public class App
 	    	
 	    	System.out.println("Display:     " + rx.getMedicationElement().getDisplay().getValue());
 	    	
-	    	// TODO: explore prescriptions data
+	    	if (!rx.getContained().getContainedResources().isEmpty()) {
+	    		Medication med = (Medication) rx.getContained().getContainedResources().get(0);
+	    		System.out.println(" - System:   " + med.getCodeElement().getCodingFirstRep().getSystemElement().getValueAsString());
+	    		System.out.println(" - Code:     " + med.getCodeElement().getCodingFirstRep().getCodeElement().getValueAsString());
+	    	}
 	    	
+	    	DateTimeDt written = (DateTimeDt) rx.getDateWrittenElement();
+	    	if (written!=null) System.out.println("Written:     " + written.getValueAsString());
+	    	System.out.println("Prescriber:  " + rx.getPrescriberElement().getDisplay().getValue());
+	    	System.out.println("Status:      " + rx.getStatusElement().getValue());
+	    	
+	    	System.out.println("Dosage:");
+	    	System.out.println(" - Quantity: " + rx.getDosageInstructionFirstRep().getDoseQuantityElement().getValueElement().getValue());
+	    	System.out.println(" - Units:    " + rx.getDosageInstructionFirstRep().getDoseQuantityElement().getUnitsElement().getValue());
+	    	System.out.println(" - How?:     " + rx.getDosageInstructionFirstRep().getTextElement().getValue());
+
+	    	System.out.println("Dispense:");
+	    	System.out.println(" - Quantity: " + rx.getDosageInstructionFirstRep().getDoseQuantityElement().getUnitsElement().getValue());
+	    	System.out.println(" - Refill?:  " + rx.getDosageInstructionFirstRep().getTextElement().getValue());
+	    	
+
 	    } else {
 	    	System.out.println("\nSorry, no prescriptions found for this patient.");
 	    }
