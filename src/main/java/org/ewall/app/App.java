@@ -4,6 +4,8 @@ import java.util.List;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.IGenericClient;
+import ca.uhn.fhir.rest.client.BaseClient;
+import ca.uhn.fhir.rest.server.EncodingEnum;
 import ca.uhn.fhir.model.api.Bundle;
 import ca.uhn.fhir.model.dstu.resource.Medication;
 import ca.uhn.fhir.model.dstu.resource.Patient;
@@ -21,7 +23,7 @@ import ca.uhn.fhir.model.dstu.composite.HumanNameDt;
 import ca.uhn.fhir.model.dstu.composite.QuantityDt;
 
 /**
- * What the duck, world?
+ * What the duck, world? <-- this made sense when I was searching for the name "duck"...
  */
 public class App 
 {
@@ -30,17 +32,20 @@ public class App
         System.out.println( "Let's get this FHIR started!" );
 
         // warning: slf4j-simple will log messages to stdout
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN");
         
         FhirContext ctx = new FhirContext();
 
-        String serverBase = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/";
+        String serverBase = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/"; // GT HealthPort FHIR server
+        //String serverBase = "http://fhirtest.uhn.ca/baseDstu1"; // HAPI-FHIR DSTU1 demo server
         IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+        
+        ((BaseClient)client).setEncoding(EncodingEnum.JSON); //set default encoding
          
         // Get all Patients
         Bundle response = client
               .search()
               .forResource(Patient.class)
-              .encodedJson()
               .execute();
         List<Patient> patients = response.getResources(Patient.class);
         while (!response.getLinkNext().isEmpty()) {
@@ -54,11 +59,12 @@ public class App
 //        IdDt id = patient.getId();
         
         // Get specific Patient ID
-        String resid = "Patient/3.568001602-01";
+        String resid = "Patient/3.568001602-01"; // GT HealthPort FHIR server
+        //String resid = "d1132446701"; // HAPI-FHIR DSTU1 demo server
         System.out.println("Fetching Patient with RES_ID '" + resid + "'.");
         IdDt id = new IdDt(resid);
         Patient patient = client.read(Patient.class, id);
-
+        
 	    StringDt patientId = patient.getIdentifier().get(0).getValue();
 	    System.out.println("Patient Id:  " + patientId.getValue());
 
@@ -89,7 +95,6 @@ public class App
 	    		.search()
 	    		.forResource(Observation.class)
 	    		.where(Observation.SUBJECT.hasId(id))
-	    		.encodedJson()
 	    		.execute();
 	    List<Observation> observations = response.getResources(Observation.class);
     	while (!response.getLinkNext().isEmpty()) {
@@ -124,7 +129,6 @@ public class App
 	    		.search()
 	    		.forResource(Condition.class)
 	    		.where(Condition.SUBJECT.hasId(id))
-	    		.encodedJson()
 	    		.execute();
 	    List<Condition> conditions = response.getResources(Condition.class);
 	    while (!response.getLinkNext().isEmpty()) {
