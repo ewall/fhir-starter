@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.ewall.app.IDataProvider;
 
+import com.jcabi.aspects.Cacheable;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.Bundle;
 import ca.uhn.fhir.model.dstu.resource.Condition;
@@ -34,11 +36,13 @@ public class HealthportDataProvider implements IDataProvider {
     	((BaseClient)client).setEncoding(EncodingEnum.JSON); //prefer JSON encoding
     }
 	
+    @Cacheable(forever = true)
 	public Patient getPatientById(String id) {
 		IdDt ptid = new IdDt(id);
         return client.read(Patient.class, ptid);
 	}
 
+	@Cacheable(forever = true)
 	public List<Patient> getAllPatients() {
         Bundle response = client
                 .search()
@@ -53,11 +57,13 @@ public class HealthportDataProvider implements IDataProvider {
         return patients;
 	}
 
+	@Cacheable(forever = true)
 	public Condition getConditionById(String id) {
 		IdDt condid = new IdDt(id);
         return client.read(Condition.class, condid);
 	}
 
+	@Cacheable(forever = true)
 	public List<Condition> getAllConditionsForPatient(String id) {
 	    Bundle response = client
 	    		.search()
@@ -73,11 +79,13 @@ public class HealthportDataProvider implements IDataProvider {
 	    return conditions;
 	}
 
+	@Cacheable(forever = true)
 	public Observation getObservationById(String id) {
 		IdDt obsid = new IdDt(id);
         return client.read(Observation.class, obsid);
 	}
 
+	@Cacheable(forever = true)
 	public List<Observation> getAllObservationsForPatient(String id) {
 	    Bundle response = client
 	    		.search()
@@ -93,11 +101,13 @@ public class HealthportDataProvider implements IDataProvider {
     	return observations;
 	}
 
+	@Cacheable(forever = true)
 	public MedicationPrescription getPrescriptionById(String id) {
 		IdDt rxid = new IdDt(id);
         return client.read(MedicationPrescription.class, rxid);
 	}
 
+	@Cacheable(forever = true)
 	public List<MedicationPrescription> getAllPrescriptionsForPatient(String id) {
 	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead... so we'll do the search by URL
 		String searchstr = serverBase + "MedicationPrescription?subject:Patient=" + id;
