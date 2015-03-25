@@ -2,11 +2,8 @@ package org.ewall.app;
 
 import java.util.List;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.IGenericClient;
-import ca.uhn.fhir.rest.client.BaseClient;
-import ca.uhn.fhir.rest.server.EncodingEnum;
-import ca.uhn.fhir.model.api.Bundle;
+import org.ewall.app.HealthportDataProvider;
+
 import ca.uhn.fhir.model.dstu.resource.Medication;
 import ca.uhn.fhir.model.dstu.resource.Patient;
 import ca.uhn.fhir.model.dstu.resource.Observation;
@@ -15,56 +12,37 @@ import ca.uhn.fhir.model.dstu.resource.MedicationPrescription;
 import ca.uhn.fhir.model.primitive.CodeDt;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.primitive.StringDt;
-import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.model.dstu.composite.AddressDt;
 import ca.uhn.fhir.model.dstu.composite.HumanNameDt;
 import ca.uhn.fhir.model.dstu.composite.QuantityDt;
 
 /**
- * What the duck, world? <-- this made sense when I was searching for the name "duck"...
+ * Exploring data from HealthPort FHIR server
  */
-public class App 
+public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Let's get this FHIR started!" );
+        System.out.println( "Let's get this FHIR started!\n" );
 
-        // warning: slf4j-simple will log messages to stdout
+        // Warning: slf4j-simple will log messages to STDOUT
         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN");
         
-        FhirContext ctx = new FhirContext();
-
-        String serverBase = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/"; // GT HealthPort FHIR server
-        //String serverBase = "http://fhirtest.uhn.ca/baseDstu1"; // HAPI-FHIR DSTU1 demo server
-        IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-        
-        ((BaseClient)client).setEncoding(EncodingEnum.JSON); //set default encoding
+        // Get a data provider
+        HealthportDataProvider hpdata = new HealthportDataProvider();
          
         // Get all Patients
-        Bundle response = client
-              .search()
-              .forResource(Patient.class)
-              .execute();
-        List<Patient> patients = response.getResources(Patient.class);
-        while (!response.getLinkNext().isEmpty()) {
-     	   // load next page
-     	   response = client.loadPage().next(response).execute();
-     	   patients.addAll(response.getResources(Patient.class));
-     	}
-        
+        List<Patient> patients = hpdata.getAllPatients();
         System.out.println("Found " + patients.size() + " patients in total.\n");
-//        Patient patient = patients.get(0);
-//        IdDt id = patient.getId();
         
         // Get specific Patient ID
         String resid = "Patient/3.568001602-01"; // GT HealthPort FHIR server
         //String resid = "d1132446701"; // HAPI-FHIR DSTU1 demo server
-        System.out.println("Fetching Patient with RES_ID '" + resid + "'.");
-        IdDt id = new IdDt(resid);
-        Patient patient = client.read(Patient.class, id);
-        
+        System.out.println("Fetching Patient with RES_ID '" + resid + "'.\n");
+        Patient patient = hpdata.getPatientById(resid);
+
+        // Explore Patient properties
 	    StringDt patientId = patient.getIdentifier().get(0).getValue();
 	    System.out.println("Patient Id:  " + patientId.getValue());
 
@@ -91,18 +69,9 @@ public class App
 		}
 	    
 	    // Get Observations
-	    response = client
-	    		.search()
-	    		.forResource(Observation.class)
-	    		.where(Observation.SUBJECT.hasId(id))
-	    		.execute();
-	    List<Observation> observations = response.getResources(Observation.class);
-    	while (!response.getLinkNext().isEmpty()) {
-    	   // load next page
-    	   response = client.loadPage().next(response).execute();
-    	   observations.addAll(response.getResources(Observation.class));
-    	}
+	    List<Observation> observations = hpdata.getAllObservationsForPatient(resid);
 	    
+	    // Explore Observation properties
 	    if (observations.size() > 0) {
 	    	System.out.println("\nFound " + observations.size() + " observations for this patient. Here's the first one:\n");
 	    	
@@ -125,18 +94,9 @@ public class App
 	    }
 	    
 	    // Get Conditions
-	    response = client
-	    		.search()
-	    		.forResource(Condition.class)
-	    		.where(Condition.SUBJECT.hasId(id))
-	    		.execute();
-	    List<Condition> conditions = response.getResources(Condition.class);
-	    while (!response.getLinkNext().isEmpty()) {
-    	   // load next page
-    	   response = client.loadPage().next(response).execute();
-    	   conditions.addAll(response.getResources(Condition.class));
-    	}
+	    List<Condition> conditions = hpdata.getAllConditionsForPatient(resid);
 	    
+	    // Explore Condition properties
 	    if (conditions.size() > 0) {
 	    	System.out.println("\nFound " + conditions.size() + " conditions for this patient. Here's the first one:\n");
 	    	
@@ -156,18 +116,9 @@ public class App
 	    }
 	    
 	    // Get MedicationPrescription
-	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead... so we'll do the search by URL for now
-	    String searchstr = serverBase + "MedicationPrescription?subject:Patient=" + id.getIdPart();
-	    UriDt searchurl = new UriDt(searchstr);
-	    response = client.search(searchurl);
+	    List<MedicationPrescription> prescriptions = hpdata.getAllPrescriptionsForPatient(resid);
 
-	    List<MedicationPrescription> prescriptions = response.getResources(MedicationPrescription.class);
-	    while (!response.getLinkNext().isEmpty()) {
-    	   // load next page
-    	   response = client.loadPage().next(response).execute();
-    	   prescriptions.addAll(response.getResources(MedicationPrescription.class));
-    	}
-	    
+	    // Explore MedicationPrescription properties
 	    if (prescriptions.size() > 0) {
 	    	System.out.println("\nFound " + prescriptions.size() + " prescriptions for this patient. Here's the first one:\n");
 	    	
