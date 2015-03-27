@@ -5,7 +5,7 @@ Learning some client basics of the [HAPI-FHIR API](https://jamesagnew.github.io/
 
 Execute with `mvn exec:java -Dexec.mainClass="org.ewall.app.App" -q`
 
-Current output should look like this:
+### Sample Output
 
 		Let's get this FHIR started!
 		Found 305 patients in total.
@@ -50,3 +50,9 @@ Current output should look like this:
 		 - Quantity: mg
 		 - Refill?:  po qd
 
+### Data URLs
+
+- [https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/3.568001602-01]()
+- [https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=Patient/3.568001602-01]()
+- [https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=Patient/3.568001602-01]()
+- [https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject:Patient=Patient/3.568001602-01]()
