@@ -1,5 +1,6 @@
 package org.ewall.app;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.ewall.app.IDataProvider;
@@ -43,7 +44,7 @@ public class HealthportDataProvider implements IDataProvider {
 	}
 
 	@Cacheable(forever = true)
-	public List<Patient> getAllPatients() {
+	public Collection<Patient> getAllPatients() {
         Bundle response = client
                 .search()
                 .forResource(Patient.class)
@@ -64,7 +65,7 @@ public class HealthportDataProvider implements IDataProvider {
 	}
 
 	@Cacheable(forever = true)
-	public List<Condition> getAllConditionsForPatient(String id) {
+	public Collection<Condition> getAllConditionsForPatient(String id) {
 	    Bundle response = client
 	    		.search()
 	    		.forResource(Condition.class)
@@ -86,7 +87,7 @@ public class HealthportDataProvider implements IDataProvider {
 	}
 
 	@Cacheable(forever = true)
-	public List<Observation> getAllObservationsForPatient(String id) {
+	public Collection<Observation> getAllObservationsForPatient(String id) {
 	    Bundle response = client
 	    		.search()
 	    		.forResource(Observation.class)
@@ -108,7 +109,7 @@ public class HealthportDataProvider implements IDataProvider {
 	}
 
 	@Cacheable(forever = true)
-	public List<MedicationPrescription> getAllPrescriptionsForPatient(String id) {
+	public Collection<MedicationPrescription> getAllPrescriptionsForPatient(String id) {
 	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead... so we'll do the search by URL
 		String searchstr = serverBase + "MedicationPrescription?subject:Patient=" + id;
 	    UriDt searchurl = new UriDt(searchstr);

@@ -1,6 +1,7 @@
 package org.ewall.app;
 
-import java.util.List;
+import java.util.Collection;
+
 import ca.uhn.fhir.model.dstu.resource.Patient;
 import ca.uhn.fhir.model.dstu.resource.Condition;
 import ca.uhn.fhir.model.dstu.resource.Observation;
@@ -19,7 +20,7 @@ public interface IDataProvider {
 	/**
      * @return A List of Patient resources.
      */
-	List<Patient> getAllPatients();
+	Collection<Patient> getAllPatients();
 
     /**
      * @param id Condition identifier
@@ -31,7 +32,7 @@ public interface IDataProvider {
      * @param id Patient's identifier
      * @return A single Patient resource.
      */
-	List<Condition> getAllConditionsForPatient(String id);
+	Collection<Condition> getAllConditionsForPatient(String id);
 
     /**
      * @param id Observation identifier
@@ -43,7 +44,7 @@ public interface IDataProvider {
      * @param id Patient's identifier
      * @return A list of Observation resources for a specific patient.
      */
-	List<Observation> getAllObservationsForPatient(String id);
+	Collection<Observation> getAllObservationsForPatient(String id);
 
     /**
      * @param id MedicationPrescription identifier
@@ -55,5 +56,5 @@ public interface IDataProvider {
      * @param id Patient's identifier
      * @return A single Patient resource.
      */
-	List<MedicationPrescription> getAllPrescriptionsForPatient(String id);
+	Collection<MedicationPrescription> getAllPrescriptionsForPatient(String id);
 }

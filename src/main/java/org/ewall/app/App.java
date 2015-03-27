@@ -1,5 +1,6 @@
 package org.ewall.app;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.ewall.app.HealthportDataProvider;
@@ -33,7 +34,7 @@ public class App
         HealthportDataProvider hpdata = new HealthportDataProvider();
          
         // Get all Patients
-        List<Patient> patients = hpdata.getAllPatients();
+        Collection<Patient> patients = hpdata.getAllPatients();
         System.out.println("Found " + patients.size() + " patients in total.\n");
         
         // Get specific Patient ID
@@ -69,7 +70,7 @@ public class App
 		}
 	    
 	    // Get Observations
-	    List<Observation> observations = hpdata.getAllObservationsForPatient(resid);
+	    List<Observation> observations = (List<Observation>) hpdata.getAllObservationsForPatient(resid);
 	    
 	    // Explore Observation properties
 	    if (observations.size() > 0) {
@@ -94,7 +95,7 @@ public class App
 	    }
 	    
 	    // Get Conditions
-	    List<Condition> conditions = hpdata.getAllConditionsForPatient(resid);
+	    List<Condition> conditions = (List<Condition>) hpdata.getAllConditionsForPatient(resid);
 	    
 	    // Explore Condition properties
 	    if (conditions.size() > 0) {
@@ -116,7 +117,7 @@ public class App
 	    }
 	    
 	    // Get MedicationPrescription
-	    List<MedicationPrescription> prescriptions = hpdata.getAllPrescriptionsForPatient(resid);
+	    List<MedicationPrescription> prescriptions = (List<MedicationPrescription>) hpdata.getAllPrescriptionsForPatient(resid);
 
 	    // Explore MedicationPrescription properties
 	    if (prescriptions.size() > 0) {
