@@ -7,37 +7,39 @@ import org.ewall.app.HealthportDataProvider;
 public class TestHealthportDataProvider {
 
 	private static final String id = "Patient/3.568001602-01";
-	private static HealthportDataProvider hpdata;
+	private static HealthportDataProvider fhirdata;
 	
 	@BeforeClass
 	public static void prepare()
 	{
+		System.out.println("Testing HealthPort...");
 		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN");
-		hpdata = new HealthportDataProvider();
+		fhirdata = new HealthportDataProvider();
 	}
 	
 	@Test
-	public void test_LoadPatients() {
-		System.out.println("Loading Patients...");
-		assertTrue(hpdata.getAllPatients().size() == 305);
+	public void test_LoadSomePatients() {
+		assertTrue(fhirdata.getXPatients(33).size() == 33);
+	}
+	
+	@Test
+	public void test_LoadALlPatients() {
+		assertTrue(fhirdata.getAllPatients().size() == 305);
 	}
 
 	@Test
 	public void test_LoadObservations() {
-		System.out.println("Loading Observations...");
-		assertTrue(hpdata.getAllObservationsForPatient(id).size() == 193);
+		assertTrue(fhirdata.getAllObservationsForPatient(id).size() == 193);
 	}
 
 	@Test
 	public void test_LoadConditions() {
-		System.out.println("Loading Conditions...");
-		assertTrue(hpdata.getAllConditionsForPatient(id).size() == 1);
+		assertTrue(fhirdata.getAllConditionsForPatient(id).size() == 1);
 	}
 
 	@Test
 	public void test_LoadPrescriptions() {
-		System.out.println("Loading Prescriptions...");
-		assertTrue(hpdata.getAllPrescriptionsForPatient(id).size() == 10);
+		assertTrue(fhirdata.getAllPrescriptionsForPatient(id).size() == 10);
 	}
 
 }

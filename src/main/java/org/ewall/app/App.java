@@ -3,8 +3,7 @@ package org.ewall.app;
 import java.util.Collection;
 import java.util.List;
 
-import org.ewall.app.HealthportDataProvider;
-
+import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.model.dstu.resource.Medication;
 import ca.uhn.fhir.model.dstu.resource.Patient;
 import ca.uhn.fhir.model.dstu.resource.Observation;
@@ -15,11 +14,12 @@ import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.model.dstu.composite.AddressDt;
+import ca.uhn.fhir.model.dstu.composite.AgeDt;
 import ca.uhn.fhir.model.dstu.composite.HumanNameDt;
 import ca.uhn.fhir.model.dstu.composite.QuantityDt;
 
 /**
- * Exploring data from HealthPort FHIR server
+ * Exploring data from different FHIR servers
  */
 public class App
 {
@@ -31,15 +31,15 @@ public class App
         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN");
         
         // Get a data provider
-        HealthportDataProvider hpdata = new HealthportDataProvider();
-         
-        // Get all Patients
-        Collection<Patient> patients = hpdata.getAllPatients();
+        AbstractDataProvider hpdata = new SparkDataProvider();
+        
+        // Get a bunch of Patients
+//        Collection<Patient> patients = hpdata.getAllPatients();
+        Collection<Patient> patients = hpdata.getXPatients(50);
         System.out.println("Found " + patients.size() + " patients in total.\n");
         
         // Get specific Patient ID
-        String resid = "Patient/3.568001602-01"; // GT HealthPort FHIR server
-        //String resid = "d1132446701"; // HAPI-FHIR DSTU1 demo server
+        String resid = hpdata.getSamplePtId();
         System.out.println("Fetching Patient with RES_ID '" + resid + "'.\n");
         Patient patient = hpdata.getPatientById(resid);
 
@@ -107,8 +107,15 @@ public class App
 	    	System.out.println(" - System:   " + cond.getCode().getCodingFirstRep().getSystemElement().getValue());
 	    	System.out.println(" - Code:     " + cond.getCode().getCodingFirstRep().getCodeElement().getValue());
 	    	
-	    	DateDt onset = (DateDt) cond.getOnsetElement();
-	    	if (onset!=null) System.out.println("Onset:       " + onset.getValueAsString());
+	    	IDatatype onsetElement = cond.getOnsetElement();
+			if (onsetElement instanceof DateDt) {
+	    		DateDt onsetDate = (DateDt) onsetElement;
+	    		if (onsetDate!=null) System.out.println("Onset:       " + onsetDate.getValueAsString());
+			} else if (onsetElement instanceof AgeDt) {
+	    		AgeDt onsetAge = (AgeDt) onsetElement;
+	    		int age = onsetAge.getValue().getValueAsInteger();
+	    		if (onsetAge!=null) System.out.println("Onset:       " + age + " " + onsetAge.getUnits() + " old");
+			}
 	    	
 	    	System.out.println("Status:      " + cond.getStatusElement().getValue());
 	    	

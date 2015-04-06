@@ -11,11 +11,18 @@ import ca.uhn.fhir.model.dstu.resource.MedicationPrescription;
  * FHIR backend API.
  */
 public interface IDataProvider {
+	
     /**
      * @param id 
      * @return A single Patient resource.
      */
 	Patient getPatientById(String id);
+
+	/**
+	 * @param x Number of patients to fetch.
+     * @return A List of Patient resources.
+     */
+	Collection<Patient> getXPatients(int x);
 
 	/**
      * @return A List of Patient resources.
@@ -57,4 +64,10 @@ public interface IDataProvider {
      * @return A single Patient resource.
      */
 	Collection<MedicationPrescription> getAllPrescriptionsForPatient(String id);
+	
+	/**
+	 * @return String specifying a Patient ID with good sample data.
+	 */
+	String getSamplePtId();
+	
 }

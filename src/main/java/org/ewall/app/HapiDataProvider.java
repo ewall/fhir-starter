@@ -9,18 +9,18 @@ import ca.uhn.fhir.model.primitive.UriDt;
 import ca.uhn.fhir.rest.server.EncodingEnum;
 
 /**
- * Data Provider using Georgia Tech's HealthPort FHIR server
- * requires VPN connection to GT network
+ * Data Provider using UHN's HAPI-FHIR demo server
+ * FMI see http://fhirtest.uhn.ca/
  */
-public class HealthportDataProvider extends AbstractDataProvider {
+public class HapiDataProvider extends AbstractDataProvider {
 
-    public HealthportDataProvider() {
-    	super("https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/", EncodingEnum.JSON, "Patient/3.568001602-01");
-    }
+	public HapiDataProvider() {
+		super("http://fhirtest.uhn.ca/baseDstu1", EncodingEnum.XML, "d1132446701");
+	}
 
 	public Collection<MedicationPrescription> getAllPrescriptionsForPatient(String id) {
-	    //   surprise! HealthPort doesn't support PATIENT search parameter, need to use SUBJECT instead... so we'll do the search by URL
-		String searchstr = serverBase + "MedicationPrescription?subject:Patient=" + id;
+	    //   surprise! the HAPI-FHIR server doesn't like how HAPI-FHIR v0.8 does this search... so we'll do the search by URL
+		String searchstr = serverBase + "MedicationPrescription?patient=" + id;
 	    UriDt searchurl = new UriDt(searchstr);
 	    Bundle response = client.search(searchurl);
 
@@ -32,5 +32,5 @@ public class HealthportDataProvider extends AbstractDataProvider {
     	}
 	    return prescriptions;
 	}
-	
+
 }
