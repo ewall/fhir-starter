@@ -31,7 +31,7 @@ public class App
         System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN");
         
         // Get a data provider
-        AbstractDataProvider hpdata = new SparkDataProvider();
+        AbstractDataProvider hpdata = new HealthportDataProvider();
         
         // Get a bunch of Patients
 //        Collection<Patient> patients = hpdata.getAllPatients();
@@ -151,9 +151,9 @@ public class App
 	    	System.out.println(" - How?:     " + rx.getDosageInstructionFirstRep().getTextElement().getValue());
 
 	    	System.out.println("Dispense:");
-	    	System.out.println(" - Quantity: " + rx.getDosageInstructionFirstRep().getDoseQuantityElement().getUnitsElement().getValue());
-	    	System.out.println(" - Refill?:  " + rx.getDosageInstructionFirstRep().getTextElement().getValue());
-	    	
+	    	System.out.println(" - Quantity: " + rx.getDispenseElement().getQuantityElement().getValueElement().getValueAsString());
+	    	System.out.println(" - Units:    " + rx.getDispenseElement().getQuantityElement().getUnitsElement().getValueAsString());
+	    	System.out.println(" - Refills:  " + rx.getDispenseElement().getNumberOfRepeatsAllowedElement().getValueAsString());
 
 	    } else {
 	    	System.out.println("\nSorry, no prescriptions found for this patient.");
