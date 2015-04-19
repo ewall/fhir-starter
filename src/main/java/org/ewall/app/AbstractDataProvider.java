@@ -6,6 +6,7 @@ import java.util.List;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.Bundle;
 import ca.uhn.fhir.model.dstu.resource.Condition;
+import ca.uhn.fhir.model.dstu.resource.Immunization;
 import ca.uhn.fhir.model.dstu.resource.MedicationPrescription;
 import ca.uhn.fhir.model.dstu.resource.Observation;
 import ca.uhn.fhir.model.dstu.resource.Patient;
@@ -144,4 +145,24 @@ public abstract class AbstractDataProvider implements IDataProvider {
 	    return prescriptions;
 	}
 
+	public Immunization getImmunizationById(String id) {
+		IdDt rxid = new IdDt(id);
+        return client.read(Immunization.class, rxid);		
+	}
+	
+	public Collection<Immunization> getAllImmunizationsForPatient(String id) {
+	    Bundle response = client
+	    		.search()
+	    		.forResource(Immunization.class)
+	    		.where(Immunization.SUBJECT.hasId(id))
+	    		.execute();
+		
+	    List<Immunization> immunizations = response.getResources(Immunization.class);
+	    while (!response.getLinkNext().isEmpty()) {
+    	   // load next page
+    	   response = client.loadPage().next(response).execute();
+    	   immunizations.addAll(response.getResources(Immunization.class));
+    	}
+	    return immunizations;
+	}
 }

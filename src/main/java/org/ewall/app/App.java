@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ca.uhn.fhir.model.api.IDatatype;
+import ca.uhn.fhir.model.dstu.resource.Immunization;
 import ca.uhn.fhir.model.dstu.resource.Medication;
 import ca.uhn.fhir.model.dstu.resource.Patient;
 import ca.uhn.fhir.model.dstu.resource.Observation;
@@ -158,6 +159,34 @@ public class App
 	    } else {
 	    	System.out.println("\nSorry, no prescriptions found for this patient.");
 	    }
+	    
+	    
+	    // Get Immunization
+	    List<Immunization> immunizations = (List<Immunization>) hpdata.getAllImmunizationsForPatient(resid);
+
+	    // Explore Immunization properties
+	    if (immunizations.size() > 0) {
+	    	System.out.println("\nFound " + immunizations.size() + " immunizations for this patient. Here's the first one:\n");
+	    	
+	    	Immunization immu = immunizations.get(0);
+	    	
+	    	// manufacturer, series, dose-quantity, dose-units, site and route are null is the dataset
+	    	
+	    	System.out.println("Display:     " + immu.getVaccineTypeElement().getCodingElement().get(0).getDisplay().getValue());
+	    	System.out.println("System:      " + immu.getVaccineTypeElement().getCodingElement().get(0).getSystem().getValue());
+	    	//System.out.println("ValueSet:    " + immu.getVaccineTypeElement().getCodingElement().get(0).getValueSet().getDisplay());
+	    	System.out.println("System:      " + immu.getVaccineTypeElement().getCodingElement().get(0).getCode().getValue());
+
+	    	DateTimeDt vDate = (DateTimeDt) immu.getDateElement();
+	    	if (vDate!=null) System.out.println("Vac. Date: " + vDate.getValueAsString());
+	    	
+	    	System.out.println("Lot Number:   " + immu.getLotNumber().getValue());
+	    	
+	    	System.out.println("Performer:    " + immu.getPerformer().getDisplay());	    	
+	    } else {
+	    	System.out.println("\nSorry, no immunizations found for this patient.");
+	    }
+
 	    
     }
 }

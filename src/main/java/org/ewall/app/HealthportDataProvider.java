@@ -15,7 +15,8 @@ import ca.uhn.fhir.rest.server.EncodingEnum;
 public class HealthportDataProvider extends AbstractDataProvider {
 
     public HealthportDataProvider() {
-    	super("https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/", EncodingEnum.JSON, "Patient/3.568001602-01");
+    	//super("https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/", EncodingEnum.JSON, "Patient/3.568001602-01");
+    	super("http://localhost:8080/HealthPort/fhir/", EncodingEnum.JSON, "Patient/3.568001602-01");
     }
 
 	public Collection<MedicationPrescription> getAllPrescriptionsForPatient(String id) {
